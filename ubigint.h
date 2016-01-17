@@ -28,8 +28,9 @@ class ubigint {
    public:
 
       ubigint() = default; // Need default ctor as well.
-      ubigint (unsigned long);
+      //ubigint (unsigned long);
       ubigint (const string&);
+      ubigint (const ubigint&);
 
       ubigint operator+ (const ubigint&) const;
       ubigint operator- (const ubigint&) const;
