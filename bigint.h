@@ -25,6 +25,8 @@ class bigint {
       //bigint (ubigint);
       bigint (const ubigint&, bool is_negative = false);
       explicit bigint (const string&);
+    //Newly added.
+    //bigint (unsigned char that);
 
       bigint operator+() const;
       bigint operator-() const;

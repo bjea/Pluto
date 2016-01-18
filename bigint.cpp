@@ -38,6 +38,12 @@ bigint::bigint (const string& that) {
 
 }
 
+//Newly added.
+/*bigint::bigint (unsigned char that)
+{
+   uvalue(that);
+}*/
+
 bigint bigint::operator+() const {
 
    return *this;

@@ -33,7 +33,8 @@ class ubigint {
       //ubigint (unsigned long);
       ubigint (const string&);
       ubigint (const ubigint&);
-      ubigint (const bigint&);
+    //Newly added.
+    ubigint (udigit_t that);
 
       ubigint operator+ (const ubigint&) const;
       ubigint operator- (const ubigint&) const;

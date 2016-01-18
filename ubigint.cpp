@@ -26,7 +26,7 @@ ubigint::ubigint (const string& that) {
    }
 }
 
-ubigint::ubigint (const ubigint& that): ubig_value{that.ubig_value}
+ubigint::ubigint (const ubigint& that): ubig_value(that.ubig_value)
 {
    /*for (int j = 0; j < that.ubig_value.size(); ++j)
    {
@@ -35,12 +35,11 @@ ubigint::ubigint (const ubigint& that): ubig_value{that.ubig_value}
    copy(that.ubig_value.begin(), that.ubig_value.end(), ubig_value.begin());
 }
 
-/*ubigint::ubigint (const bigint& that)
+//Newly added.
+ubigint::ubigint (udigit_t that)
 {
-   ubigint temp{};
-   //temp = that;
-   ubig_value = that.uvalue;
-}*/
+   ubig_value.push_back(that - '0');
+}
 
 ubigint ubigint::operator+ (const ubigint& that) const {
    // = ubig_value * 10 + digit - '0';
@@ -117,7 +116,7 @@ ubigint ubigint::operator+ (const ubigint& that) const {
 ubigint ubigint::operator- (const ubigint& that) const {
    int size_this = this->ubig_value.size();
    int size_that = that.ubig_value.size();
-   if (size_this < size_that)
+   if (*this < that)
    {
       throw domain_error ("ubigint::operator-(a<b)");
    }
@@ -126,16 +125,14 @@ ubigint ubigint::operator- (const ubigint& that) const {
    int borrow = 0;
    for (int i = 0; i < size_this; ++i)
    {
-
       if ((this->ubig_value[i] - that.ubig_value[i] - borrow) < 0)
       {
-
          result.ubig_value.push_back(this->ubig_value[i] + 10 - borrow - that.ubig_value[i]);
          borrow = 1;
       }
       else
       {
-         result.ubig_value.push_back(this->ubig_value[i] - that.ubig_value[i]);
+         result.ubig_value.push_back(this->ubig_value[i] - that.ubig_value[i] - borrow);
          borrow = 0;
       }
    }
@@ -147,104 +144,134 @@ ubigint ubigint::operator* (const ubigint& that) const {
    ubigint result{};
    int size_this = this->ubig_value.size();
    int size_that = that.ubig_value.size();
+   //result.ubig_value(size_this+size_that);
    int carry_multiply = 0;
    int carry_add = 0;
+
    for (int i = 0; i < size_this; ++i)
    {
       for (int j = 0; j < size_that; ++j)
       {
-         if ((j == size_that - 1) && ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) >= 10))
+         if ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) >= 10)
          {
-            int i_j_old = result.ubig_value[i+j];
-            if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) >= 10)
+            if (j == (size_that - 1))
             {
-
-               result.ubig_value[i+j] = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) % 10;
-               carry_add = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10)) / 10;
-               result.ubig_value[i+j+1] += (((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) / 10) + carry_add);
-
-
-            }
-            else
-            {
-               result.ubig_value[i+j] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add;
-               //carry_add = 0;
-
-            }
-            //result.ubig_value[i+j] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10);
-            //result.ubig_value[i+j+1] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) / 10);
-            carry_add = 0;
-            carry_multiply = 0;
-
-         }
-         else
-         {
-            if ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) >= 10)
-            {
-
                int i_j_old = result.ubig_value[i+j];
-               if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) >= 10)
+               if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply)) + carry_add) >= 10)
                {
-
-                  result.ubig_value[i+j] = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) % 10;
-                  carry_add = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10)) / 10;
-
+                  result.ubig_value[i+j] = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply)) + carry_add) % 10;
+                  carry_add = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply))) / 10;
+                  result.ubig_value[i+j+1] += carry_add;
                }
                else
                {
                   result.ubig_value[i+j] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add;
-                  carry_add = 0;
+               }
+
+               carry_add = 0;
+               carry_multiply = 0;
+            }
+
+            else
+            {
+               /*int test1 = (ubig_value[i] * that.ubig_value[j] + carry_multiply);
+               cout << "test1 = " << test1 << endl;*/
+
+               int i_j_old = result.ubig_value[i+j];
+               //cout << "i_j_old = " << i_j_old << endl;
+               if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) >= 10)
+               {
+                  result.ubig_value[i+j] = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) % 10;
+                  carry_add = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10)) / 10;
+                  //Newly Added
+                  result.ubig_value[i+j+1] += carry_add;
+               }
+               else
+               {
+                  result.ubig_value[i+j] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add;
 
                }
                carry_multiply = (this->ubig_value[i] * that.ubig_value[j] + carry_multiply) / 10;
+               //Newly Added
+               carry_add = 0;
+            }
+         }
+         else
+         {
+            if (j == (size_that - 1))
+            {
+               int i_j_old = result.ubig_value[i+j];
+               if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) /*% 10*/) + carry_add) >= 10)
+               {
+                  result.ubig_value[i+j] = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply)) + carry_add) % 10;
+                  carry_add = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) /*% 10*/)) / 10;
+                  result.ubig_value[i+j+1] += carry_add;
+               }
+               else
+               {
+                  result.ubig_value[i+j] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add;
+               }
+
+               carry_add = 0;
+               carry_multiply = 0;
+
             }
             else
             {
-               if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) >= 10)
+               int i_j_old = result.ubig_value[i+j];
+               if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10)) >= 10)
                {
-                  result.ubig_value[i+j] = (result.ubig_value[i+j] + this->ubig_value[i] * that.ubig_value[j] + carry_multiply + carry_add) % 10;
-                  carry_add = (result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10)) / 10;
+                  result.ubig_value[i+j] = (result.ubig_value[i+j] + this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10;
+                  carry_add = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10)) / 10;
+                  result.ubig_value[i+j+1] += carry_add;
                }
                else
                {
                   result.ubig_value[i+j] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10);
-
                }
-               result.ubig_value[i+j] += (this->ubig_value[i] * that.ubig_value[j] + carry_multiply);
+
                carry_multiply = 0;
+               //Newly Added.
+               carry_add = 0;
             }
+
          }
       }
    }
+
 
    return result;
 }
 
 void ubigint::multiply_by_2() {
-   //ubigint result;
-
       int carry = 0;
       for (int i = 0; i < this->ubig_value.size(); ++i)
       {
-
-         if ((i == this->ubig_value.size() - 1) && (carry + this->ubig_value[i] * 2) >= 10)
+         if ((carry + this->ubig_value[i] * 2) >= 10)
          {
-            this->ubig_value[i] = this->ubig_value[i] * 2 + carry - 10;
-            this->ubig_value[i+1] = '1';
-         }
-         else
-         {
-            if ((carry + this->ubig_value[i] * 2) >= 10)
+            if ((i == this->ubig_value.size() - 1))
             {
-
                this->ubig_value[i] = this->ubig_value[i] * 2 + carry - 10;
-               carry = 1;
+               this->ubig_value[i+1] = 1;
             }
             else
             {
+               this->ubig_value[i] = this->ubig_value[i] * 2 + carry - 10;
+               carry = 1;
+            }
+         }
+         else
+         {
+            /*if ((carry + this->ubig_value[i] * 2) >= 10)
+            {
+
+
+            }
+            else
+            {*/
                this->ubig_value[i] = this->ubig_value[i] * 2 + carry;
                carry = 0;
-            }
+            //}
          }
 
       }
@@ -266,20 +293,23 @@ void ubigint::divide_by_2() {
       {***/
          if ((this->ubig_value[i] + carry) >= 2)
          {
-
-            if ((this->ubig_value[i]) % 2)
+            /*if (i == 0)
             {
-
-               this->ubig_value[i] = (carry + this->ubig_value[i]) / 2;
-               carry = 10;
 
             }
             else
-            {
-               this->ubig_value[i] = (this->ubig_value[i] + carry) / 2;
-               carry = 0;
-            }
-
+            {*/
+               if ((this->ubig_value[i]) % 2)
+               {
+                  this->ubig_value[i] = (carry + this->ubig_value[i]) / 2;
+                  carry = 10;
+               }
+               else
+               {
+                  this->ubig_value[i] = (this->ubig_value[i] + carry) / 2;
+                  carry = 0;
+               }
+            //}
 
          }
          else
@@ -304,12 +334,12 @@ ubigint::quot_rem ubigint::divide (const ubigint& that) const {
    //ubigint quotient = 0;
    //ubigint remainder = *this; // left operand, dividend
 
-   ubigint zero{};
-   zero.ubig_value.push_back('0');
+   ubigint zero('0');
+   //zero.ubig_value.push_back(0);
    if (that == zero) throw domain_error ("ubigint::divide: by 0");
    //
-   ubigint power_of_2{};
-   power_of_2.ubig_value.push_back('1');
+   ubigint power_of_2('1');
+   //power_of_2.ubig_value.push_back(1);
    ubigint divisor = that; // right operand, divisor
    ubigint quotient{};
    ubigint remainder = *this;
