@@ -17,14 +17,16 @@ ubigint::ubigint (ubigint& that): ubig_value (that.ubig_value) {
 }*/
 
 ubigint::ubigint (const string& that) {
+
+   string that_noLeadingZero = that;
+   that_noLeadingZero.erase(0, min(that_noLeadingZero.find_first_not_of('0'), that_noLeadingZero.size()-1));
    // Use const_reverse_iterator crbegin(), crend() to scan a string
    // from the end of the string (least significant digit) to the
    // beginning of the string (most significant digit).
-   for (auto rev_that = that.crbegin(); rev_that != that.crend(); ++rev_that)
+   for (auto rev_that = that_noLeadingZero.crbegin(); rev_that != that_noLeadingZero.crend(); ++rev_that)
    {
-      ubig_value.push_back(*rev_that - '0');
+         ubig_value.push_back(*rev_that - '0');
    }
-
 }
 
 ubigint::ubigint (const ubigint& that): ubig_value(that.ubig_value)
