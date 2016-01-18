@@ -7,17 +7,18 @@
 // This algorithm would be more efficient with operators
 // *=, /=2, and is_odd.  But we leave it here.
 //
-/*
+
 bigint pow (const bigint& base_arg, const bigint& exponent_arg) {
    bigint base (base_arg);
    bigint exponent (exponent_arg);
-   ubigint temp = exponent.uvalue;
-   ubigint u_ZERO{};
-   u_ZERO.ubig_value.push_back('0');
+   //ubigint temp = exponent.uvalue;
+   ubigint u_ZERO('0');
+   ubigint u_ONE('1');
+   ubigint u_TWO('2');
 
-   static const bigint ZERO (0);
-   static const bigint ONE (1);
-   static const bigint TWO (2);
+   static const bigint ZERO (u_ZERO, false);
+   static const bigint ONE (u_ONE, false);
+   static const bigint TWO (u_TWO, false);
    DEBUGF ('^', "base = " << base << ", exponent = " << exponent);
    if (base == ZERO) return ZERO;
    bigint result = ONE;
@@ -28,13 +29,13 @@ bigint pow (const bigint& base_arg, const bigint& exponent_arg) {
    while (exponent > ZERO) {
       if (exponent % TWO == ONE) {
          result = result * base;
-         exponent = exponent - 1;
+         exponent = exponent - ONE;
       }else {
          base = base * base;
-         exponent = exponent / 2;
+         exponent = exponent / TWO;
       }
    }
    DEBUGF ('^', "result = " << result);
    return result;
 }
-*/
+

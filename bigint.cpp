@@ -39,9 +39,9 @@ bigint::bigint (const string& that) {
 }
 
 //Newly added.
-/*bigint::bigint (unsigned char that)
+/*bigint::bigint (const unsigned char& that)
 {
-   uvalue(that);
+   uvalue.ubig_value(that);
 }*/
 
 bigint bigint::operator+() const {
