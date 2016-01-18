@@ -7,21 +7,22 @@
 #include <iostream>
 #include <limits>
 #include <utility>
-using namespace std;
-
+#include <vector>
 #include "debug.h"
 #include "relops.h"
 #include "ubigint.h"
 
+//using namespace std;
+
 class bigint {
    friend ostream& operator<< (ostream&, const bigint&);
    private:
-      ubigint uvalue;
-      bool is_negative {false};
+    ubigint uvalue;
+    bool is_negative {false};
    public:
 
       bigint() = default; // Needed or will be suppressed.
-      bigint (long);
+      //bigint (ubigint);
       bigint (const ubigint&, bool is_negative = false);
       explicit bigint (const string&);
 

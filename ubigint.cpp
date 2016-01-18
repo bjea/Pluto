@@ -9,6 +9,7 @@
 using namespace std;
 
 #include "ubigint.h"
+#include "bigint.h"
 #include "debug.h"
 /*
 ubigint::ubigint (unsigned long that): ubig_value (that) {
@@ -31,8 +32,15 @@ ubigint::ubigint (const ubigint& that): ubig_value{that.ubig_value}
    {
       that.ubig_value.push_back('0');
    }*/
-   copy(that.ubig_value[0], that.ubig_value[that.ubig_value.size()], ubig_value.begin());
+   copy(that.ubig_value.begin(), that.ubig_value.end(), ubig_value.begin());
 }
+
+/*ubigint::ubigint (const bigint& that)
+{
+   ubigint temp{};
+   //temp = that;
+   ubig_value = that.uvalue;
+}*/
 
 ubigint ubigint::operator+ (const ubigint& that) const {
    // = ubig_value * 10 + digit - '0';
@@ -287,17 +295,30 @@ void ubigint::divide_by_2() {
 
 
 ubigint::quot_rem ubigint::divide (const ubigint& that) const {
-   static const ubigint zero = 0;
+   //static const ubigint zero = 0;
+   if (that.ubig_value.size() == 0) throw domain_error ("ubigint::divide: by 0");
+   // How to catch a string of "000" stored as a vector?
+
+   //ubigint power_of_2 = 1;
+   //ubigint divisor = that; // right operand, divisor
+   //ubigint quotient = 0;
+   //ubigint remainder = *this; // left operand, dividend
+
+   ubigint zero{};
+   zero.ubig_value.push_back('0');
    if (that == zero) throw domain_error ("ubigint::divide: by 0");
-   ubigint power_of_2 = 1;
+   //
+   ubigint power_of_2{};
+   power_of_2.ubig_value.push_back('1');
    ubigint divisor = that; // right operand, divisor
-   ubigint quotient = 0;
-   ubigint remainder = *this; // left operand, dividend
+   ubigint quotient{};
+   ubigint remainder = *this;
+
    while (divisor < remainder) {
       divisor.multiply_by_2();
       power_of_2.multiply_by_2();
    }
-   while (power_of_2 > zero) {
+   while (zero < power_of_2) {
       if (divisor <= remainder) {
          remainder = remainder - divisor;
          quotient = quotient + power_of_2;
@@ -317,14 +338,95 @@ ubigint ubigint::operator% (const ubigint& that) const {
 }
 
 bool ubigint::operator== (const ubigint& that) const {
-   return ubig_value == that.ubig_value;
+   if (this->ubig_value.size() != that.ubig_value.size())
+   {
+      return false;
+   }
+   else
+   {
+      for (int i = 0; i < that.ubig_value.size(); ++i)
+      {
+         if (this->ubig_value[i] != that.ubig_value[i])
+         {
+            return false;
+         }
+      }
+      return true;
+   }
 }
 
 bool ubigint::operator< (const ubigint& that) const {
-   return ubig_value < that.ubig_value;
+   if (this->ubig_value.size() > that.ubig_value.size())
+   {
+      return false;
+   }
+   else
+   {
+      for (int i = that.ubig_value.size() - 1; i >= 0; --i)
+      {
+         if (this->ubig_value[i] > that.ubig_value[i])
+         {
+            return false;
+         }
+         else if (this->ubig_value[i] == that.ubig_value[i])
+         {
+            continue;
+         }
+         else
+         {
+            return true;
+         }
+      }
+
+   }
+   //return ubig_value < that.ubig_value;
+   return false;
 }
 
-ostream& operator<< (ostream& out, const ubigint& that) { 
-   return out << "ubigint(" << that.ubig_value << ")";
+bool ubigint::operator<= (const ubigint& that) const {
+   if (this->ubig_value.size() > that.ubig_value.size())
+   {
+      return false;
+   }
+   else
+   {
+      for (int i = that.ubig_value.size() - 1; i >= 0; --i)
+      {
+         if (this->ubig_value[i] > that.ubig_value[i])
+         {
+            return false;
+         }
+         else if (i == 0 && (this->ubig_value[i] == that.ubig_value[i]))
+         {
+            return true;
+         }
+         else if (this->ubig_value[i] == that.ubig_value[i])
+         {
+            continue;
+         }
+         else
+         {
+            return true;
+         }
+      }
+
+   }
+
+   return false;
+
+   //return ubig_value < that.ubig_value;
+}
+
+ostream& operator<< (ostream& out, const ubigint& that) {
+
+   //vector<udigit_t>
+   ubigint that_copy = that;
+   for (auto rev_that = that_copy.ubig_value.rbegin(); rev_that != that_copy.ubig_value.rend(); ++rev_that)
+   {
+      out<< int(*rev_that);
+   }
+
+   return out;
+   //return out << "ubigint(" << that.ubig_value << ")";
 }
 

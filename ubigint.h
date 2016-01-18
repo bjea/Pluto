@@ -13,6 +13,8 @@ using namespace std;
 #include "debug.h"
 #include "relops.h"
 
+class bigint;
+
 class ubigint {
    friend ostream& operator<< (ostream&, const ubigint&);
    private:
@@ -31,6 +33,7 @@ class ubigint {
       //ubigint (unsigned long);
       ubigint (const string&);
       ubigint (const ubigint&);
+      ubigint (const bigint&);
 
       ubigint operator+ (const ubigint&) const;
       ubigint operator- (const ubigint&) const;
@@ -40,6 +43,7 @@ class ubigint {
 
       bool operator== (const ubigint&) const;
       bool operator<  (const ubigint&) const;
+      bool operator<=  (const ubigint&) const;
 };
 
 #endif
