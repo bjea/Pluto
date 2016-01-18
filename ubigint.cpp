@@ -32,7 +32,7 @@ ubigint::ubigint (const ubigint& that): ubig_value(that.ubig_value)
    copy(that.ubig_value.begin(), that.ubig_value.end(), ubig_value.begin());
 }
 
-//Newly added.
+//Constructor using an unsigned char to initialize.
 ubigint::ubigint (udigit_t that)
 {
    ubig_value.push_back(that - '0');
@@ -52,20 +52,18 @@ ubigint ubigint::operator+ (const ubigint& that) const {
       result.ubig_value.resize(size_this+1);
       for (int i = 0; i < size_that; ++i)
       {
-         // To carry over an additional digit to the most significant digit.
+         // To handle the carry-over to the next more significant digit.
          if ((carry + this->ubig_value[i] + that.ubig_value[i]) >= 10)
          {
+            // To carry over an additional digit to the most significant digit.
             if (i == (size_that - 1) )
             {
-               // Convert int back to char to append to vector member of ubigint.
-               // Reduced form of: (carry + this->ubig_value[i] - '0' + that.ubig_value[i] - '0' - 10 + '0').
                result.ubig_value[i] = carry + this->ubig_value[i] + that.ubig_value[i] - 10;
                result.ubig_value[i+1] = 1;
                break;
             }
             else
             {
-               // Convert int back to char to append to vector member of ubigint.
                result.ubig_value[i] = (carry + this->ubig_value[i] + that.ubig_value[i] - 10);
                carry = 1;
             }
@@ -90,8 +88,6 @@ ubigint ubigint::operator+ (const ubigint& that) const {
          {
             if (i == (size_that - 1) )
             {
-               // Convert int back to char to append to vector member of ubigint.
-               // Reduced form of: (carry + this->ubig_value[i] - '0' + that.ubig_value[i] - '0' - 10 + '0').
                result.ubig_value[i] = carry + this->ubig_value[i] + that.ubig_value[i] - 10;
                // To carry over an additional digit to the most significant digit.
                result.ubig_value[i+1] = 1;
@@ -99,7 +95,6 @@ ubigint ubigint::operator+ (const ubigint& that) const {
             }
             else
             {
-               // Convert int back to char to append to vector member of ubigint.
                result.ubig_value[i] = carry + this->ubig_value[i] + that.ubig_value[i] - 10;
                carry = 1;
             }
@@ -126,12 +121,13 @@ ubigint ubigint::operator+ (const ubigint& that) const {
 
 ubigint ubigint::operator- (const ubigint& that) const {
    unsigned long size_this = this->ubig_value.size();
-//   int size_that = that.ubig_value.size();
+
+   // To compare the value of this & that to avoid handling (a - b) when a < b.
    if (*this < that)
    {
       throw domain_error ("ubigint::operator-(a<b)");
    }
-   // How to compare the value of this & that?
+
    ubigint result;
    int borrow = 0;
    for (int i = 0; i < size_this; ++i)
@@ -190,22 +186,18 @@ ubigint ubigint::operator* (const ubigint& that) const {
 
             else
             {
-               /*int test1 = (ubig_value[i] * that.ubig_value[j] + carry_multiply);
-               cout << "test1 = " << test1 << endl;*/
-
                int i_j_old = result.ubig_value[i+j];
-               //cout << "i_j_old = " << i_j_old << endl;
+
                if ((result.ubig_value[i+j] + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) >= 10)
                {
                   result.ubig_value[i+j] = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add) % 10;
                   carry_add = (i_j_old + ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10)) / 10;
-                  //Newly Added
+                  //To carry over an additional digit to the next more significant digit.
                   result.ubig_value[i+j+1] += carry_add;
                }
                else
                {
                   result.ubig_value[i+j] += ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) % 10) + carry_add;
-
                }
                carry_multiply = (this->ubig_value[i] * that.ubig_value[j] + carry_multiply) / 10;
                //Newly Added
@@ -230,7 +222,6 @@ ubigint ubigint::operator* (const ubigint& that) const {
 
                carry_add = 0;
                carry_multiply = 0;
-
             }
             else
             {
@@ -250,7 +241,6 @@ ubigint ubigint::operator* (const ubigint& that) const {
                //Newly Added.
                carry_add = 0;
             }
-
          }
       }
    }
@@ -294,7 +284,7 @@ void ubigint::multiply_by_2() {
 
 void ubigint::divide_by_2() {
    int carry = 0;
-   //unsigned long i = 0UL;
+
    for (auto it = ubig_value.rbegin(); it != ubig_value.rend(); ++it)
    {
       if ((*it + carry) >= 2)
@@ -320,28 +310,18 @@ void ubigint::divide_by_2() {
       {
          ubig_value.erase(ubig_value.begin()+(ubig_value.size()-1));
       }
-
    }
-
 }
 
 
 ubigint::quot_rem ubigint::divide (const ubigint& that) const {
-   //static const ubigint zero = 0;
+
    if (that.ubig_value.size() == 0) throw domain_error ("ubigint::divide: by 0");
-   // How to catch a string of "000" stored as a vector?
-
-   //ubigint power_of_2 = 1;
-   //ubigint divisor = that; // right operand, divisor
-   //ubigint quotient = 0;
-   //ubigint remainder = *this; // left operand, dividend
-
    ubigint zero('0');
-   //zero.ubig_value.push_back(0);
+
    if (that == zero) throw domain_error ("ubigint::divide: by 0");
    //
    ubigint power_of_2('1');
-   //power_of_2.ubig_value.push_back(1);
    ubigint divisor = that; // right operand, divisor
    ubigint quotient{};
    ubigint remainder = *this;

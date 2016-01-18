@@ -22,7 +22,6 @@ bigint::bigint (const ubigint& uvalue, bool is_negative):
 
 bigint::bigint (const string& that) {
    is_negative = that.size() > 0 and that[0] == '_';
-   //uvalue = ubigint (that.substr (is_negative ? 1 : 0));
 
    if (is_negative)
    {
@@ -37,12 +36,6 @@ bigint::bigint (const string& that) {
    }
 
 }
-
-//Newly added.
-/*bigint::bigint (const unsigned char& that)
-{
-   uvalue.ubig_value(that);
-}*/
 
 bigint bigint::operator+() const {
 
