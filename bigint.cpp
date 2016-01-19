@@ -12,9 +12,9 @@ using namespace std;
 #include "relops.h"
 #include "ubigint.h"
 
-/*bigint::bigint (ubigint that): uvalue (that), is_negative (false) {
+bigint::bigint (ubigint that): uvalue (that), is_negative (false) {
    DEBUGF ('~', this << " -> " << uvalue)
-}*/
+}
 
 bigint::bigint (const ubigint& uvalue, bool is_negative):
                 uvalue(uvalue), is_negative(is_negative) {
@@ -53,7 +53,7 @@ bigint bigint::operator+ (const bigint& that) const {
       result.uvalue = this->uvalue + that.uvalue;
       result.is_negative = false;
    }
-   if (!this->is_negative && that.is_negative)
+   else if (!this->is_negative && that.is_negative)
    {
       if (that.uvalue <= this->uvalue)
       {
@@ -66,7 +66,7 @@ bigint bigint::operator+ (const bigint& that) const {
          result.is_negative = true;
       }
    }
-   if (this->is_negative && !that.is_negative)
+   else if (this->is_negative && !that.is_negative)
    {
       if (that.uvalue <= this->uvalue)
       {
@@ -79,7 +79,7 @@ bigint bigint::operator+ (const bigint& that) const {
          result.is_negative = false;
       }
    }
-   if (this->is_negative && that.is_negative)
+   else if (this->is_negative && that.is_negative)
    {
       result.uvalue = this->uvalue + that.uvalue;
       result.is_negative = true;

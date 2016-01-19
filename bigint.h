@@ -22,11 +22,9 @@ class bigint {
    public:
 
       bigint() = default; // Needed or will be suppressed.
-      //bigint (ubigint);
+      bigint (ubigint);
       bigint (const ubigint&, bool is_negative = false);
       explicit bigint (const string&);
-    //Newly added.
-    //bigint (const unsigned char&);
 
       bigint operator+() const;
       bigint operator-() const;

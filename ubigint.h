@@ -31,11 +31,10 @@ class ubigint {
    public:
 
       ubigint() = default; // Need default ctor as well.
-      //ubigint (unsigned long);
+      ubigint (vector<unsigned char>);
       ubigint (const string&);
-      ubigint (const ubigint&);
-    //Newly added.
-    ubigint (udigit_t that);
+      ubigint (const ubigint&); // C
+      ubigint (udigit_t that);  // Constructor initialized by unsigned char.
 
       ubigint operator+ (const ubigint&) const;
       ubigint operator- (const ubigint&) const;

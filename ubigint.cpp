@@ -11,10 +11,10 @@ using namespace std;
 #include "ubigint.h"
 #include "bigint.h"
 #include "debug.h"
-/*
-ubigint::ubigint (ubigint& that): ubig_value (that.ubig_value) {
-   DEBUGF ('~', this << " -> " << ubig_value)
-}*/
+
+ubigint::ubigint (vector<unsigned char> that): ubig_value (that) {
+   DEBUGF ('~', this << " -> " << (*this))
+}
 
 ubigint::ubigint (const string& that) {
 
@@ -71,14 +71,14 @@ ubigint ubigint::operator+ (const ubigint& that) const {
       i++;
    }
 
-   while(i < size_this)
+   while (i < size_this)
    {
       int thisValue = this->ubig_value[i];
       int sum = thisValue + carry;
 
-      if(sum/10)
+      if (sum / 10)
       {
-         result.ubig_value.push_back(sum%10);
+         result.ubig_value.push_back(sum % 10);
          carry = sum/10;
       }
       else
@@ -90,14 +90,14 @@ ubigint ubigint::operator+ (const ubigint& that) const {
       i++;
    }
 
-   while(i < size_that)
+   while (i < size_that)
    {
       int thatValue = that.ubig_value[i];
       int sum = thatValue + carry;
 
-      if(sum/10)
+      if (sum / 10)
       {
-         result.ubig_value.push_back(sum%10);
+         result.ubig_value.push_back(sum % 10);
          carry = sum/10;
       }
       else
@@ -109,7 +109,7 @@ ubigint ubigint::operator+ (const ubigint& that) const {
       i++;
    }
 
-   if(carry)
+   if (carry)
    {
       result.ubig_value.push_back(carry);
    }
@@ -118,7 +118,7 @@ ubigint ubigint::operator+ (const ubigint& that) const {
 }
 
 ubigint ubigint::operator- (const ubigint& that) const {
-   unsigned long size_this = this->ubig_value.size();
+
 
    // To compare the value of this & that to avoid handling (a - b) when a < b.
    if (*this < that)
@@ -126,26 +126,61 @@ ubigint ubigint::operator- (const ubigint& that) const {
       throw domain_error ("ubigint::operator-(a<b)");
    }
 
+   unsigned long size_this = this->ubig_value.size();
+   unsigned long size_that = that.ubig_value.size();
+
    ubigint result;
+
    int borrow = 0;
-   for (unsigned long i = 0; i < size_this; ++i)
+
+   unsigned long i = 0UL;
+
+   while (i < size_this && i < size_that)
    {
-      if ((this->ubig_value[i] - that.ubig_value[i] - borrow) < 0)
+      int thisValue = this->ubig_value[i];
+      int thatValue = that.ubig_value[i];
+
+      int difference = thisValue - thatValue - borrow;
+
+      if (difference < 0)
       {
-         result.ubig_value.push_back(this->ubig_value[i] + 10 - borrow - that.ubig_value[i]);
+         result.ubig_value.push_back(difference + 10);
          borrow = 1;
       }
       else
       {
-         result.ubig_value.push_back(this->ubig_value[i] - that.ubig_value[i] - borrow);
+         result.ubig_value.push_back(difference);
          borrow = 0;
       }
+
+      i++;
    }
+
+   while (i < size_this)
+   {
+      int thisValue = this->ubig_value[i];
+      int difference = thisValue - borrow;
+
+      if (difference < 0)
+      {
+         result.ubig_value.push_back(difference + 10);
+         borrow = 1;
+      }
+      else
+      {
+         result.ubig_value.push_back(difference);
+         borrow = 0;
+      }
+
+      i++;
+   }
+
 
    if (result.ubig_value[result.ubig_value.size()-1] == 0)
    {
-      result.ubig_value.erase(result.ubig_value.begin()+(result.ubig_value.size()-1));
+      result.ubig_value.erase(result.ubig_value.begin() + (result.ubig_value.size() - 1));
    }
+
 
    return result;
 }
