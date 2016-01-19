@@ -41,6 +41,84 @@ ubigint::ubigint (udigit_t that)
 }
 
 ubigint ubigint::operator+ (const ubigint& that) const {
+   unsigned long size_this = this->ubig_value.size();
+   unsigned long size_that = that.ubig_value.size();
+
+   ubigint result;
+
+   int carry = 0;
+
+   unsigned long i = 0UL;
+
+   while(i < size_this && i < size_that)
+   {
+      int thisValue = this->ubig_value[i];
+      int thatValue = that.ubig_value[i];
+
+      int sum = thisValue + thatValue + carry;
+
+      if(sum/10)
+      {
+         result.ubig_value.push_back(sum%10);
+         carry = sum/10;
+      }
+      else
+      {
+         result.ubig_value.push_back(sum);
+         carry = 0;
+      }
+
+      i++;
+   }
+
+   while(i < size_this)
+   {
+      int thisValue = this->ubig_value[i];
+      int sum = thisValue + carry;
+
+      if(sum/10)
+      {
+         result.ubig_value.push_back(sum%10);
+         carry = sum/10;
+      }
+      else
+      {
+         result.ubig_value.push_back(sum);
+         carry = 0;
+      }
+
+      i++;
+   }
+
+   while(i < size_that)
+   {
+      int thatValue = that.ubig_value[i];
+      int sum = thatValue + carry;
+
+      if(sum/10)
+      {
+         result.ubig_value.push_back(sum%10);
+         carry = sum/10;
+      }
+      else
+      {
+         result.ubig_value.push_back(sum);
+         carry = 0;
+      }
+
+      i++;
+   }
+
+   if(carry)
+   {
+      result.ubig_value.push_back(carry);
+   }
+
+   return result;
+}
+
+/*
+ubigint ubigint::operator+ (const ubigint& that) const {
 
    unsigned long size_this = this->ubig_value.size();
    unsigned long size_that = that.ubig_value.size();
@@ -132,6 +210,11 @@ ubigint ubigint::operator+ (const ubigint& that) const {
             carry = 0;
          }
       }
+
+      if((size_this == size_that) && carry != 0)
+      {
+         result.ubig_value[size_this] = carry;
+      }
    }
 
    if (result.ubig_value[result.ubig_value.size()-1] == 0)
@@ -141,7 +224,7 @@ ubigint ubigint::operator+ (const ubigint& that) const {
 
    return result;
 }
-
+*/
 ubigint ubigint::operator- (const ubigint& that) const {
    unsigned long size_this = this->ubig_value.size();
 
@@ -153,7 +236,7 @@ ubigint ubigint::operator- (const ubigint& that) const {
 
    ubigint result;
    int borrow = 0;
-   for (int i = 0; i < size_this; ++i)
+   for (unsigned long i = 0; i < size_this; ++i)
    {
       if ((this->ubig_value[i] - that.ubig_value[i] - borrow) < 0)
       {
@@ -183,9 +266,9 @@ ubigint ubigint::operator* (const ubigint& that) const {
    int carry_multiply = 0;
    int carry_add = 0;
 
-   for (int i = 0; i < size_this; ++i)
+   for (unsigned long i = 0UL; i < size_this; ++i)
    {
-      for (int j = 0; j < size_that; ++j)
+      for (unsigned long j = 0UL; j < size_that; ++j)
       {
          if ((this->ubig_value[i] * that.ubig_value[j] + carry_multiply) >= 10)
          {
@@ -277,6 +360,9 @@ ubigint ubigint::operator* (const ubigint& that) const {
 }
 
 void ubigint::multiply_by_2() {
+   /*ubigint this_times2;
+   this_times2 = (*this) + (*this);
+   *this = this_times2;*/
    int carry = 0;
    unsigned long size_original = this->ubig_value.size();
    this->ubig_value.resize(this->ubig_value.size() + 1);
@@ -303,6 +389,7 @@ void ubigint::multiply_by_2() {
          ubig_value[i] = (carry + ubig_value[i] * 2);
          carry = 0;
       }
+
    }
    if (ubig_value[ubig_value.size()-1] == 0)
    {
@@ -328,7 +415,7 @@ void ubigint::divide_by_2() {
             carry = 0;
          }
       }
-      else
+      else if((*it + carry) != 0)
       {
          *it = 0;
          carry = 10;
