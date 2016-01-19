@@ -481,13 +481,28 @@ bool ubigint::operator<= (const ubigint& that) const {
 
 ostream& operator<< (ostream& out, const ubigint& that) {
 
-   //vector<udigit_t>
    ubigint that_copy = that;
+   long that_size = that_copy.ubig_value.size();
+
+   /*** Displaying the ubigint number all in one line.
    for (auto rev_that = that_copy.ubig_value.rbegin(); rev_that != that_copy.ubig_value.rend(); ++rev_that)
    {
       out<< int(*rev_that);
    }
+   ***/
 
+   // Displaying the ubigint number in multiple lines like dc style.
+   for (long i = that_size - 1; i >= 0; --i)
+   {
+
+      out<< int(that_copy.ubig_value[i]);
+      // To add "\" and a new line every 60 digits,
+      // + 10 because "bigint('+' " takes 10 digits.
+      if ((that_size - i + 10) % 60 == 0)
+      {
+         out<< "\\" << endl;
+      }
+   }
    return out;
    //return out << "ubigint(" << that.ubig_value << ")";
 }

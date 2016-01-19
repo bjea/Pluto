@@ -204,3 +204,8 @@ ostream& operator<< (ostream& out, const bigint& that) {
               << that_uvalue << ")";
 }
 
+ubigint bigint::getUvalue() const
+{
+   return uvalue;
+}
+

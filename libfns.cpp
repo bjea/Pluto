@@ -11,6 +11,15 @@
 bigint pow (const bigint& base_arg, const bigint& exponent_arg) {
    bigint base (base_arg);
    bigint exponent (exponent_arg);
+   const string longMax = "2147483647";
+   const string longMin = "_2147483648";
+   bigint b_longMax (longMax);
+   bigint b_longMin (longMin);
+   if (b_longMax < exponent || exponent < b_longMin)
+   {
+      throw domain_error ("pow: exponent is too big (absolute value) to handle!");
+   }
+
    //ubigint temp = exponent.uvalue;
    ubigint u_ZERO('0');
    ubigint u_ONE('1');
