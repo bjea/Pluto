@@ -61,7 +61,7 @@ ubigint ubigint::operator+ (const ubigint& that) const {
             if (i == (size_that - 1) )
             {
                result.ubig_value[i] = carry + this->ubig_value[i] + that.ubig_value[i] - 10;
-               result.ubig_value[i+1] = 1;
+               carry = 1;
                break;
             }
             else
@@ -76,9 +76,19 @@ ubigint ubigint::operator+ (const ubigint& that) const {
             carry = 0;
          }
       }
+
       for (int i = size_that; i < size_this; ++i)
       {
-         result.ubig_value[i] += this->ubig_value[i];
+         if (carry + this->ubig_value[i] >= 10)
+         {
+            result.ubig_value[i] = carry + this->ubig_value[i] - 10;
+            carry = 1;
+         }
+         else
+         {
+            result.ubig_value[i] = carry + this->ubig_value[i];
+            carry = 0;
+         }
       }
    }
    else
@@ -92,7 +102,8 @@ ubigint ubigint::operator+ (const ubigint& that) const {
             {
                result.ubig_value[i] = carry + this->ubig_value[i] + that.ubig_value[i] - 10;
                // To carry over an additional digit to the most significant digit.
-               result.ubig_value[i+1] = 1;
+               //result.ubig_value[i+1] = 1;
+               carry = 1;
                break;
             }
             else
@@ -107,9 +118,19 @@ ubigint ubigint::operator+ (const ubigint& that) const {
             carry = 0;
          }
       }
+
       for (int i = size_this; i < size_that; ++i)
       {
-         result.ubig_value[i] += that.ubig_value[i];
+         if (carry + that.ubig_value[i] >= 10)
+         {
+            result.ubig_value[i] = carry + that.ubig_value[i] - 10;
+            carry = 1;
+         }
+         else
+         {
+            result.ubig_value[i] = carry + that.ubig_value[i];
+            carry = 0;
+         }
       }
    }
 
@@ -257,37 +278,42 @@ ubigint ubigint::operator* (const ubigint& that) const {
 
 void ubigint::multiply_by_2() {
    int carry = 0;
-   for (unsigned long i = 0; i < this->ubig_value.size(); ++i)
+   unsigned long size_original = this->ubig_value.size();
+   this->ubig_value.resize(this->ubig_value.size() + 1);
+   for (unsigned long i = 0; i < size_original; ++i)
    {
       if ((carry + this->ubig_value[i] * 2) >= 10)
       {
-         if (i == this->ubig_value.size() - 1)
+         if (i == size_original - 1)
          {
-            this->ubig_value[i] = this->ubig_value[i] * 2 + carry - 10;
-            this->ubig_value.resize(this->ubig_value.size() + 1);
+            this->ubig_value[i] = (this->ubig_value[i] * 2 + carry) % 10;
+            //this->ubig_value.resize(this->ubig_value.size() + 1);
             this->ubig_value[i+1] = 1;
             break;
          }
          else
          {
-            this->ubig_value[i] = this->ubig_value[i] * 2 + carry - 10;
+            this->ubig_value[i] = (this->ubig_value[i] * 2 + carry) % 10;
             carry = 1;
          }
       }
+
       else
       {
-         this->ubig_value[i] = this->ubig_value[i] * 2 + carry;
+         ubig_value[i] = (carry + ubig_value[i] * 2);
          carry = 0;
       }
-
    }
-
+   if (ubig_value[ubig_value.size()-1] == 0)
+   {
+      ubig_value.erase(ubig_value.begin()+(ubig_value.size()-1));
+   }
 }
 
 void ubigint::divide_by_2() {
    int carry = 0;
 
-   for (auto it = ubig_value.rbegin(); it != ubig_value.rend(); ++it)
+   for (auto it = this->ubig_value.rbegin(); it != this->ubig_value.rend(); ++it)
    {
       if ((*it + carry) >= 2)
       {
@@ -308,9 +334,9 @@ void ubigint::divide_by_2() {
          carry = 10;
       }
 
-      if (ubig_value[ubig_value.size()-1] == 0)
+      if (this->ubig_value[this->ubig_value.size()-1] == 0)
       {
-         ubig_value.erase(ubig_value.begin()+(ubig_value.size()-1));
+         this->ubig_value.erase(this->ubig_value.begin()+(this->ubig_value.size()-1));
       }
    }
 }
