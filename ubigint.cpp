@@ -19,7 +19,11 @@ ubigint::ubigint (vector<unsigned char> that): ubig_value (that) {
 ubigint::ubigint (const string& that) {
 
    string that_noLeadingZero = that;
+
+   // To remove leading zeros of input string,
+   // http://stackoverflow.com/questions/25726531/how-to-remove-leading-zeros-from-string-using-c
    that_noLeadingZero.erase(0, min(that_noLeadingZero.find_first_not_of('0'), that_noLeadingZero.size()-1));
+
    // Use const_reverse_iterator crbegin(), crend() to scan a string
    // from the end of the string (least significant digit) to the
    // beginning of the string (most significant digit).
@@ -175,7 +179,8 @@ ubigint ubigint::operator- (const ubigint& that) const {
       i++;
    }
 
-
+   // To erase leading zero by index,
+   // http://stackoverflow.com/questions/875103/how-to-erase-element-from-stdvector-by-index
    if (result.ubig_value[result.ubig_value.size()-1] == 0)
    {
       result.ubig_value.erase(result.ubig_value.begin() + (result.ubig_value.size() - 1));
@@ -475,21 +480,12 @@ bool ubigint::operator<= (const ubigint& that) const {
    }
 
    return false;
-
-   //return ubig_value < that.ubig_value;
 }
 
 ostream& operator<< (ostream& out, const ubigint& that) {
 
    ubigint that_copy = that;
    long that_size = that_copy.ubig_value.size();
-
-   /*** Displaying the ubigint number all in one line.
-   for (auto rev_that = that_copy.ubig_value.rbegin(); rev_that != that_copy.ubig_value.rend(); ++rev_that)
-   {
-      out<< int(*rev_that);
-   }
-   ***/
 
    // Displaying the ubigint number in multiple lines like dc style.
    for (long i = that_size - 1; i >= 0; --i)
@@ -504,6 +500,5 @@ ostream& operator<< (ostream& out, const ubigint& that) {
       }
    }
    return out;
-   //return out << "ubigint(" << that.ubig_value << ")";
 }
 
