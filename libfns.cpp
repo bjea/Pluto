@@ -1,5 +1,5 @@
 // $Id: libfns.cpp,v 1.4 2015-07-03 14:46:41-07 - - $
-
+#include <stdexcept>
 #include "libfns.h"
 #include "ubigint.h"
 
